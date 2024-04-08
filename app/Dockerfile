@@ -8,6 +8,5 @@ RUN set -xe \
     && apt-get install -y mysql-client 
 RUN pip3 install --upgrade pip
 RUN pip3 install -r requirements.txt
-EXPOSE 8080
-ENTRYPOINT [ "python3" ]
-CMD [ "app.py" ]
+EXPOSE 81
+ENTRYPOINT [ "python3 getbg.py && python3 app.py" ]
