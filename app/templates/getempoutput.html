@@ -2,13 +2,22 @@
 <html>
 <head>
 	<title>Employee Information</title>
+	<style>
+		body {
+			background-image: url("{{url_for('static', filename='project.jpeg')}}");
+			background-repeat: no-repeat;
+			background-attachment: fixed;  
+  			background-size: cover;
+		}
+	</style>
+	<meta name="Group Members" content="{{ finame }}" />	
 </head>
 <center>
 	<font color="black" size="5" style="font-family: avenir">
 
 		<h1 style="color: DodgerBlue">Employee Information</h1>
 
-		<body style="background: {{ color }};">
+		<body>
 
 			<form>
 
@@ -28,6 +37,10 @@
 
 			</form>
 			<a href="{{ url_for('home') }}">Back</a>
+			
+			 <footer style="background:#302ea3;color:white;height:25px;font-size:14pt">
+			  <p>Group 5 members: {{ finame }}<br>
+			</footer>	
 		</body>
 
 	</font>
