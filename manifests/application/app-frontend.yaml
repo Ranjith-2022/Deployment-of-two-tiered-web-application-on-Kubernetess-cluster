@@ -19,11 +19,13 @@ spec:
         app.kubernetes.io/name: mysql
         app.kubernetes.io/component: frontend
     spec:
+      serviceAccountName: clo835
       containers:
       - name: application
         image: 602646394633.dkr.ecr.us-east-1.amazonaws.com/clo835-ecr-assignment2:myapp_v0.1
+        imagePullPolicy: Always        
         ports:
-        - containerPort: 8080
+        - containerPort: 81
         env:
           - name: DBPORT
             value: "3306"
