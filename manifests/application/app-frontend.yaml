@@ -4,21 +4,36 @@ kind: Deployment
 metadata:
   name: webapp-mysql
   namespace: final
-    labels:
+  labels:
     app.kubernetes.io/name: mysql
     app.kubernetes.io/component: frontend
 spec:
   selector:
+    matchLabels:
       app.kubernetes.io/name: mysql
       app.kubernetes.io/component: frontend
-  replicas: 3      
+  replicas: 3
   template:
     metadata:
       labels:
-        app: my-app
+        app.kubernetes.io/name: mysql
+        app.kubernetes.io/component: frontend
     spec:
       containers:
-      - name: my-app
-        image: your-image:tag
+      - name: application
+        image: 602646394633.dkr.ecr.us-east-1.amazonaws.com/clo835-ecr-assignment2:myapp_v0.1
         ports:
         - containerPort: 8080
+        env:
+          - name: DBPORT
+            value: "3306"
+          - name: DBHOST
+            value: mysql-service.mysql-ns.svc.cluster.local
+          - name: DBUSER
+            value: root
+          - name: DATABASE
+            value: employees
+          - name: DBPWD
+            value: pw
+          - name: APP_COLOR
+            value: blue
