@@ -11,7 +11,7 @@ spec:
     matchLabels:
       app.kubernetes.io/name: mysql
       app.kubernetes.io/component: frontend
-  replicas: 3
+  replicas: 1
   template:
     metadata:
       labels:
@@ -31,16 +31,28 @@ spec:
           - name: DBHOST
             value: mysql-service.mysql-ns.svc.cluster.local
           - name: DBUSER
-            value: root
+            valueFrom:
+              secretKeyRef:
+                name: db-secrets
+                key: username
           - name: DATABASE
-            value: employees
+            valueFrom:
+              secretKeyRef:
+                name: db-secrets
+                key: database
           - name: DBPWD
-            value: pw
+            valueFrom:
+              secretKeyRef:
+                name: db-secrets
+                key: password
           - name: APP_COLOR
             value: blue
         volumeMounts:
         - name: html-volume
           mountPath: /usr/share/nginx/html
+          readOnly: true
+        - name: secret-volume
+          mountPath: /etc/secret-volume
           readOnly: true
       volumes:
       - name: html-volume
@@ -48,3 +60,6 @@ spec:
           repository: https://github.com/luksa/kubia-website-example.git
           revision: master
           directory: .
+      - name: secret-volume
+        secret:
+          secretName: my-secrets
