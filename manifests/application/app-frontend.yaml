@@ -2,12 +2,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: my-app
+  name: webapp-mysql
+  namespace: final
+    labels:
+    app.kubernetes.io/name: mysql
+    app.kubernetes.io/component: frontend
 spec:
-  replicas: 3
   selector:
-    matchLabels:
-      app: my-app
+      app.kubernetes.io/name: mysql
+      app.kubernetes.io/component: frontend
+  replicas: 3      
   template:
     metadata:
       labels:
