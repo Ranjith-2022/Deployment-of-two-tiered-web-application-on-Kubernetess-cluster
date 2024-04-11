@@ -32,7 +32,4 @@ spec:
           mountPath: /var/lib/mysql
         ports:
         - containerPort: 3306
-      volumes:
-      - name: volume-sql-group25
-        persistentVolumeClaim:
-          claimName: sql-data
+      
