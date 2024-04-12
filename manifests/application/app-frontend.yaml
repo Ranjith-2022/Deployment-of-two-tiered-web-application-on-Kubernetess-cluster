@@ -55,11 +55,12 @@ spec:
           mountPath: /etc/secret-volume
           readOnly: true
       volumes:
-      - name: html-volume
-        gitRepo:
-          repository: https://github.com/luksa/kubia-website-example.git
-          revision: master
-          directory: .
-      - name: secret-volume
+      - name: app-secret-volumes
         secret:
-          secretName: my-secrets
+          secretName: db-secret
+      - name: config-volume
+        configMap: 
+          name: url-config
+          items:
+              - key: Image_Uri
+                path: Image_Uri
