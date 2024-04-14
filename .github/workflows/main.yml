@@ -34,7 +34,7 @@ jobs:
           ECR_REPOSITORY: finalproject
           IMAGE_TAG: latest
         run: |
-          cd simple-webappp-mysql/
+          cd app/
           ls -ltra
           # Building app image
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
