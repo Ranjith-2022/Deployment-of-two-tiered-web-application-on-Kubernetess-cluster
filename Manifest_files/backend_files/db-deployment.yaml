@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - name: mysql
-        image: mysql
+        image: 848224205131.dkr.ecr.us-east-1.amazonaws.com/finalproject:my_db
         env:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom: 
@@ -36,6 +36,3 @@ spec:
       - name: volume-sql-group25
         persistentVolumeClaim:
           claimName: sql-data
-          
-          
-          #### testing to see the changes

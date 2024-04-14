@@ -8,8 +8,6 @@ metadata:
   version: "1.23"
 
 availabilityZones: ["us-east-1a", "us-east-1b"]
-iam:
-  serviceRoleARN: arn:aws:iam::848224205131:role/LabRole
 
 cloudWatch:
   clusterLogging:
@@ -21,5 +19,3 @@ managedNodeGroups:
   instanceType: t3.small
   ssh:
     enableSsm: true
-  iam:
-      instanceRoleARN: arn:aws:iam::848224205131:role/LabRole
