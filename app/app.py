@@ -1,83 +1,70 @@
-from flask import Flask, render_template, request
-from flask import jsonify
-from flask import Flask, render_template, request
-from pymysql import connections
-import boto3
+from cloudpathlib import CloudPath
 import os
-import random
-import argparse
+import mysql.connector
+import socket
+from flask import Flask
+from flask import render_template
+import logging
+import boto3
+from urllib.parse import urlparse
+logging.basicConfig(filename='record.log', level=logging.DEBUG)
+
 
 app = Flask(__name__)
 
-DBHOST = os.environ.get("DBHOST") or "localhost"
-DBUSER = os.environ.get("DBUSER") or "root"
-DBPWD = os.environ.get("DBPWD") or "passwors"
-DATABASE = os.environ.get("DATABASE") or "employees"
-COLOR_FROM_ENV = os.environ.get('APP_COLOR') or "lime"
-DBPORT = int(os.environ.get("DBPORT"))
-BGIMAGE = os.environ.get("BGIMAGE") or "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.hcamag.com%2Fca%2Fspecialization%2Frecruitment%2Fwhere-are-the-best-places-to-work-in-toronto%2F449981&psig=AOvVaw1h3a-21n5jLMF4_e4FQgGK&ust=1712473430555000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCMD3uuaCrYUDFQAAAAAdAAAAABAE"
-OURNAMES = os.environ.get("OURNAMES")
+DB_Host = os.environ.get('MYSQL_SERVICE_HOST') or "localhost"
+DB_Database = os.environ.get('DB_Database') or "mysql"
+DB_User = os.environ.get('DB_User') or "root"
+DB_Password = os.environ.get('DB_Password') or "paswrd"
+IMAGE_URL = os.environ.get('IMAGE_URL') or "static"
+USER_NAME = os.environ.get('USER_NAME') or ""
+print(IMAGE_URL)
 
+def downloadFile():
+    try:
+        app.logger.info(IMAGE_URL)
+        if IMAGE_URL != 'static':
+            # cp = CloudPath(IMAGE_URL)
+            # cp.download_to('./static')
+            parsed_url = urlparse(IMAGE_URL)
+            bucket_name = parsed_url.netloc
+            object_key = parsed_url.path.lstrip('/')
+            
+            # Initialize the S3 client
+            s3_client = boto3.client('s3')
+            
+            # Download the file from S3
+            s3_client.download_file(bucket_name, object_key, './static/project.jpeg')
+            # s3.download_file(IMAGE_URL, './static/')
+    except Exception as e:
+        err_message = str(e)
+        app.logger.warning(err_message)
+        print(err_message)
 
-# Create a connection to the MySQL database
-db_conn = connections.Connection(
-    host= DBHOST,
-    port=DBPORT,
-    user= DBUSER,
-    password= DBPWD, 
-    db= DATABASE
-    
-)
-output = {}
-table = 'employee';
-
-# Define the supported color codes
-color_codes = {
-    "red": "#e74c3c",
-    "green": "#16a085",
-    "blue": "#89CFF0",
-    "blue2": "#30336b",
-    "pink": "#f4c2c2",
-    "darkblue": "#130f40",
-    "lime": "#C1FF9C",
-}
-
-# Create a string of supported colors
-SUPPORTED_COLORS = ",".join(color_codes.keys())
-
-# Generate a random color
-COLOR = random.choice(["red", "green", "blue", "blue2", "darkblue", "pink", "lime"])
+downloadFile()
 
 @app.route("/")
-def home():
-    return render_template('addemp.html', background_image_url=get_background_image_url())
+def main():
+    db_connect_result = False
+    err_message = ""
+    app.logger.info("calling download")
+    try:
+        mysql.connector.connect(
+            host=DB_Host, database=DB_Database, user=DB_User, password=DB_Password)
+        color = '#39b54b'
+        db_connect_result = True
+    except Exception as e:
+        color = '#ff3f3f'
+        err_message = str(e)
 
-@app.route("/about")
-def about():
-    return render_template('about.html', background_image_url=get_background_image_url())
+    return render_template('home.html', debug="Environment Variables: DB_Host=" + (os.environ.get('MYSQL_SERVICE_HOST') or "Not Set") + "; DB_Database=" + (os.environ.get('DB_Database') or "Not Set") + "; DB_User=" + (os.environ.get('DB_User') or "Not Set") + "; DB_Password=" + (os.environ.get('DB_Password') or "Not Set") + "; " + err_message, db_connect_result=db_connect_result, name=socket.gethostname(), color=color, image_url=IMAGE_URL, user_name=USER_NAME)
 
-# Add other routes and functions as per your application requirements
 
-if __name__ == '__main__':
-    # Check for Command Line Parameters for color
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--color', required=False)
-    args = parser.parse_args()
-    
-    if args.color:
-        print("Color from command line argument =" + args.color)
-        COLOR = args.color
-        if COLOR_FROM_ENV:
-            print("A color was set through environment variable -" + COLOR_FROM_ENV + ". However, color from command line argument takes precendence.")
-    elif COLOR_FROM_ENV:
-        print("No Command line argument. Color from environment variable =" + COLOR_FROM_ENV)
-        COLOR = COLOR_FROM_ENV
-    else:
-        print("No command line argument or environment variable. Picking a Random Color =" + COLOR)
+@app.route("/debug")
+def debug():
+    color = '#2196f3'
+    return render_template('home.html', debug="Environment Variables: DB_Host=" + (os.environ.get('MYSQL_SERVICE_HOST') or "Not Set") + "; DB_Database=" + (os.environ.get('DB_Database') or "Not Set") + "; DB_User=" + (os.environ.get('DB_User') or "Not Set") + "; DB_Password=" + (os.environ.get('DB_Password') or "Not Set"), color=color, image_url=IMAGE_URL, user_name=USER_NAME)
 
-    # Check if input color is a supported one
-    if COLOR not in color_codes:
-        print("Color not supported. Received '" + COLOR + "' expected one of " + SUPPORTED_COLORS)
-        exit(1)
 
-    app.run(host='0.0.0.0', port=81, debug=True)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=81)
