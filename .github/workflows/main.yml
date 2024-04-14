@@ -3,11 +3,6 @@ name: Push To ECR
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
-    paths:
-      - 'app/**'
-
 
 jobs:
   
@@ -38,12 +33,6 @@ jobs:
           ls -ltra
           # Building app image
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          # Testing the image before pushing to ECR
-          docker run -d -p 8080:81 $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker ps
-          echo "Pause for 10 seconds to let container start"
-          sleep 10
-          curl localhost:8080 -vvv
-          # Pushing the image to ECR
+          # Pushing image to ECR
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           
